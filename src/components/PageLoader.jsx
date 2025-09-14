@@ -12,7 +12,6 @@ const PageLoader = ({ children }) => {
 
   const allLoaded = heroLoaded && navbarLoaded && minTimePassed;
 
-  
   useEffect(() => {
     if (!allLoaded) {
       let current = 0;
@@ -29,7 +28,6 @@ const PageLoader = ({ children }) => {
     }
   }, [allLoaded]);
 
-
   useEffect(() => {
     gsap.fromTo(
       ".digit",
@@ -39,7 +37,7 @@ const PageLoader = ({ children }) => {
   }, [count]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setMinTimePassed(true), 1500);
+    const timer = setTimeout(() => setMinTimePassed(true), 1000);
     return () => clearTimeout(timer);
   }, []);
 
