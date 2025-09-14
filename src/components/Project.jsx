@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+// Project.jsx
+import { forwardRef, useRef, useState } from "react";
 import { FaCertificate } from "react-icons/fa";
 import { FiBarChart2, FiCloud, FiCpu, FiShield } from "react-icons/fi";
 import { TiLocationArrow } from "react-icons/ti";
@@ -10,22 +11,15 @@ export const BentoTilt = ({ children, className = "" }) => {
 
   const handleMouseMove = (event) => {
     if (!itemRef.current) return;
-
     const { left, top, width, height } =
       itemRef.current.getBoundingClientRect();
-
     const relativeX = (event.clientX - left) / width;
     const relativeY = (event.clientY - top) / height;
-
     const tiltX = (relativeY - 0.5) * 5;
     const tiltY = (relativeX - 0.5) * -5;
-
-    const newTransform = `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(.95, .95, .95)`;
-    setTransformStyle(newTransform);
-  };
-
-  const handleMouseLeave = () => {
-    setTransformStyle("");
+    setTransformStyle(
+      `perspective(700px) rotateX(${tiltX}deg) rotateY(${tiltY}deg) scale3d(.95,.95,.95)`
+    );
   };
 
   return (
@@ -34,7 +28,7 @@ export const BentoTilt = ({ children, className = "" }) => {
       ref={itemRef}
       className={className}
       onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
+      onMouseLeave={() => setTransformStyle("")}
       style={{ transform: transformStyle }}
     >
       {children}
@@ -42,42 +36,58 @@ export const BentoTilt = ({ children, className = "" }) => {
   );
 };
 
-export const BentoCard = ({
-  src,
-  title,
-  description,
-  isComingSoon,
-  comingSoonLink,
-}) => {
+const isVideoSrc = (src) => /\.(mp4|webm|ogg)$/i.test(src || "");
+
+export const BentoCard = forwardRef(function BentoCard(
+  {
+    src,
+    title,
+    description,
+    isComingSoon,
+    comingSoonLink,
+    kind,
+    alt = "",
+    poster,
+    className = "",
+    ...mediaProps
+  },
+  ref
+) {
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [hoverOpacity, setHoverOpacity] = useState(0);
   const hoverButtonRef = useRef(null);
 
-  const handleMouseMove = (event) => {
+  const handleMouseMove = (e) => {
     if (!hoverButtonRef.current) return;
     const rect = hoverButtonRef.current.getBoundingClientRect();
-
-    setCursorPosition({
-      x: event.clientX - rect.left,
-      y: event.clientY - rect.top,
-    });
+    setCursorPosition({ x: e.clientX - rect.left, y: e.clientY - rect.top });
   };
 
-  const handleMouseEnter = () => setHoverOpacity(1);
-  const handleMouseLeave = () => setHoverOpacity(0);
+  const renderAsVideo = kind ? kind === "video" : isVideoSrc(src);
 
   return (
-    <div className="relative size-full">
-      <video
-        src={src}
-        loop
-        muted
-        autoPlay
-        className="absolute top-0 left-0 object-cover object-center size-full"
-      />
+    <div ref={ref} className={`relative size-full ${className}`}>
+      {renderAsVideo ? (
+        <video
+          src={src}
+          poster={poster}
+          playsInline
+          className="absolute inset-0 object-cover object-center size-full"
+          {...mediaProps}
+        />
+      ) : (
+        <img
+          src={src}
+          alt={alt}
+          loading="lazy"
+          className="absolute inset-0 object-cover object-center size-full"
+          {...mediaProps}
+        />
+      )}
+
       <div className="relative z-10 flex flex-col justify-between p-5 size-full text-blue-50">
         <div>
-          <h1 className="bento-title special-font">{title}</h1>
+          {title && <h1 className="bento-title special-font">{title}</h1>}
           {description && (
             <p className="mt-3 text-xs max-w-64 md:text-base">{description}</p>
           )}
@@ -90,8 +100,8 @@ export const BentoCard = ({
             rel="noopener noreferrer"
             ref={hoverButtonRef}
             onMouseMove={handleMouseMove}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
+            onMouseEnter={() => setHoverOpacity(1)}
+            onMouseLeave={() => setHoverOpacity(0)}
             className="relative flex items-center gap-1 px-5 py-2 overflow-hidden text-xs uppercase bg-black rounded-full cursor-pointer border-hsla w-fit text-white/20"
           >
             <div
@@ -108,7 +118,7 @@ export const BentoCard = ({
       </div>
     </div>
   );
-};
+});
 
 const Project = () => (
   <section className="pb-20 bg-black">
@@ -162,7 +172,7 @@ const Project = () => (
         </div>
 
         <BentoTilt className="relative h-[80vh] w-full overflow-hidden rounded-md">
-          <BentoCard src="videos/feature-6.mp4" />
+          <BentoCard src="img/1.jpg" alt="Profile cover" />
           <div className="absolute inset-0 pointer-events-none bg-black/40" />
         </BentoTilt>
       </div>
@@ -171,19 +181,21 @@ const Project = () => (
     <div className="container px-3 mx-auto md:px-10">
       <BentoTilt className="border-hsla relative mb-7 h-96 w-full overflow-hidden rounded-md md:h-[65vh]">
         <BentoCard
+          src="videos/feature-1.mp4"
+          kind="video"
           loop
           muted
           autoPlay
+          playsInline
           onLoadedMetadata={(e) => {
-            console.log("Duração do vídeo:", e.target.duration);
+            console.log("Duração do vídeo:", e.currentTarget.duration);
           }}
-          src="videos/feature-1.mp4"
           title={
             <>
               E<b>DU</b>CAR
             </>
           }
-          description="Educar is a learning system for high school and university students, allowing them to organize and learn from materials chosen by the students themselves. The system uses LangChain, a framework that connects language models to external information sources, and integrates GPT via API to generate contextualized responses."
+          description="Educar is a learning system for high school and university students, allowing them to organize and learn from materials chosen by the students themselves. The system uses LangChain and integrates GPT via API to generate contextualized responses."
           isComingSoon
         />
         <div className="absolute inset-0 pointer-events-none bg-black/40" />
@@ -193,12 +205,17 @@ const Project = () => (
         <BentoTilt className="row-span-1 bento-tilt_1 md:col-span-1 md:row-span-2">
           <BentoCard
             src="videos/feature-4.mp4"
+            kind="video"
+            loop
+            muted
+            autoPlay
+            playsInline
             title={
               <>
                 Ethi<b>cal Ha</b>cker
               </>
             }
-            description="The Cisco Ethical Hacker course is designed to train professionals capable of identifying, analyzing, and mitigating vulnerabilities in systems and networks. It combines cybersecurity theory and practice, covering everything from ethical hacking concepts, penetration testing, and vulnerability analysis to the application of advanced monitoring and defense tools."
+            description="The Cisco Ethical Hacker course trains professionals to identify, analyze, and mitigate vulnerabilities in systems and networks, combining theory and hands-on penetration testing."
             isComingSoon
             comingSoonLink="https://www.credly.com/badges/8614ae6a-bbbb-4d6f-82bf-9e6b2dd6f758/linked_in_profile"
           />
@@ -208,13 +225,17 @@ const Project = () => (
         <BentoTilt className="row-span-1 bento-tilt_1 ms-32 md:col-span-1 md:ms-0">
           <BentoCard
             src="videos/feature-3.mp4"
+            kind="video"
+            loop
+            muted
+            autoPlay
+            playsInline
             title={
               <>
                 P<b>a</b>dan
               </>
             }
-            description="Technology company dedicated to research and development of innovative solutions.
-"
+            description="Technology company dedicated to research and development of innovative solutions."
             isComingSoon
           />
           <div className="absolute inset-0 pointer-events-none bg-black/20" />
@@ -223,12 +244,17 @@ const Project = () => (
         <BentoTilt className="bento-tilt_1 me-14 md:col-span-1 md:me-0">
           <BentoCard
             src="videos/feature-2.mp4"
+            kind="video"
+            loop
+            muted
+            autoPlay
+            playsInline
             title={
               <>
                 Thr<b>ee.js</b>
               </>
             }
-            description="I work on the development of interactive and immersive web interfaces, using React to build scalable applications, GSAP for advanced animations and WebGL/Three.js for 3D rendering."
+            description="Interactive and immersive web interfaces with React, GSAP, and WebGL/Three.js."
             isComingSoon
             comingSoonLink="https://threejs.org/manual/#en/creating-a-scene"
           />
@@ -250,12 +276,13 @@ const Project = () => (
         </BentoTilt>
 
         <BentoTilt className="bento-tilt_2">
-          <video
+          <BentoCard
             src="videos/feature-5.mp4"
+            kind="video"
             loop
             muted
             autoPlay
-            className="object-cover object-center size-full"
+            playsInline
           />
         </BentoTilt>
       </div>

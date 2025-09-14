@@ -16,7 +16,7 @@ const Hero = ({ onReady }) => {
   const nextVdRef = useRef(null);
 
   useEffect(() => {
-    const count = 5;
+    const count = 2;
     const available = [];
 
     const checkVideo = async (index) => {
