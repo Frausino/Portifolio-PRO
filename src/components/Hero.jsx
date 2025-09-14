@@ -37,7 +37,6 @@ const Hero = ({ onReady }) => {
     })();
   }, []);
 
-  // ✅ dispara onReady quando o primeiro vídeo carregar
   const handleVideoLoaded = () => {
     if (!isReadyTriggered) {
       setLoading(false);
@@ -184,6 +183,10 @@ const Hero = ({ onReady }) => {
             </p>
 
             <Button
+              as="a"
+              href="https://www.linkedin.com/in/davi-r-frausino/"
+              target="_blank"
+              rel="noopener noreferrer"
               id="Linkedin-button"
               title="Linkedin"
               leftIcon={<FiLinkedin />}
@@ -191,6 +194,10 @@ const Hero = ({ onReady }) => {
             />
 
             <Button
+              as="a"
+              href="https://github.com/Frausino"
+              target="_blank"
+              rel="noopener noreferrer"
               id="GitHub"
               title="GitHub"
               leftIcon={<FiGithub />}
