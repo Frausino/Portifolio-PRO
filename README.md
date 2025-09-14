@@ -1,6 +1,6 @@
 # portfolioHUB — Portfólio Profissional Digital
 
-> Entrega inicial do desafio “Criação de um Portfólio Profissional Digital”.
+> Entrega inicial do desafio “Criação de um Portfólio Profissional Digital.
 
 ## 🔎 Visão geral
 
